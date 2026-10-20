@@ -32,6 +32,7 @@
   .imgs figcaption { display: flex; justify-content: space-between; align-items: center; padding: 4px }
   .section { margin-bottom: 14px; padding: 12px; background: var(--raise); border: 1px solid var(--line); border-radius: 6px }
   .item { padding: 10px 0; border-top: 1px dashed var(--line) }
+  .guide { max-width: 78ch } .guide pre { padding: 8px 10px; overflow: auto; background: var(--field); border: 1px solid var(--line) } .guide code { color: var(--accent2) } .guide li { margin: 4px 0 }
   textarea[data-path="site.banner"] { overflow-x: auto; font-size: 11px; white-space: pre }
   #log { margin: 0; overflow: auto; padding: 8px 14px; background: var(--term-bg); border-top: 1px solid var(--line); color: var(--muted); font: 12px/1.5 var(--mono); white-space: pre-wrap }
 </style>
@@ -40,7 +41,7 @@
 <body>
 <header id="top">
   <span class="kicker">Portfolio · Gamemaster</span>
-  <span id="count" class="muted"></span>
+  <span id="pcount" class="muted"></span>
   <span id="saved" class="muted">loaded</span>
 </header>
 <main>
@@ -51,6 +52,8 @@
   </aside>
   <section id="editor"></section>
   <aside id="side">
+    <h3>Start here</h3>
+    <button class="btn" data-go="guide">✎ How to add &amp; publish</button>
     <h3>Game Settings</h3>
     <button class="btn" data-go="site">⚙ Site &amp; UI</button>
     <button class="btn" data-go="resume">☰ Resume &amp; jobs</button>

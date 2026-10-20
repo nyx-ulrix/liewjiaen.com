@@ -8,7 +8,7 @@ const isVid = file => /\.(mp4|webm)$/i.test(file);
 const MAX = 50;
 
 const data = await fetch('/data.json', { cache: 'no-store' }).then(r => r.json());
-let view = ['site'], timer = null; // view: ['project', index] | ['site'] | ['resume']
+let view = ['guide'], timer = null; // view: ['project', index] | ['site'] | ['resume'] | ['guide']
 
 const get = path => path.split('.').reduce((o, k) => o?.[k], data);
 const set = (path, v) => { const k = path.split('.'), last = k.pop(); k.reduce((o, x) => o[x], data)[last] = v; };
@@ -36,7 +36,7 @@ addEventListener('beforeunload', e => { if (timer) e.preventDefault(); });
 // ---- Rendering
 function renderList() {
   const q = $('#q').value.toLowerCase(), P = data.projects;
-  $('#count').textContent = `${P.length} / ${MAX} projects`;
+  $('#pcount').textContent = `${P.length} / ${MAX} projects`;
   $('#new').disabled = P.length >= MAX;
   $('#plist').innerHTML = P.map((p, i) => !p.title.toLowerCase().includes(q) ? '' :
     `<li><button data-pick="${i}"${view[0] === 'project' && view[1] === i ? ' class="on"' : ''}><span class="mini">${p.images[0] ? `<img src="${thumb(p.images[0])}" alt="">` : `<span class="card"></span>`}</span><b>${String(i + 1).padStart(2, '0')} · ${esc(p.title)}</b><small>${esc(p.type)}</small></button></li>`).join('');
@@ -61,17 +61,22 @@ function render() {
       <h3>Images &amp; videos · first is the cover on the spiral</h3>
       <label class="drop">Drop images or videos (MP4/WebM, max 50 MB) anywhere on this page, or click to choose<input type="file" accept="image/*,video/mp4,video/webm" multiple hidden></label>
       <div class="imgs">${p.images.map((f, j) => `<figure><img src="${thumb(f)}" alt="">${isVid(f) ? '<i class="badge">▶ video</i>' : ''}<figcaption>${j ? `<button class="btn" data-act="cover" data-j="${j}">★ Make cover</button>` : '<span class="hl">★ Cover</span>'}<button class="btn danger" data-act="rmimg" data-j="${j}" aria-label="Remove image">✕</button></figcaption></figure>`).join('')}</div>`;
+  } else if (kind === 'guide') { // ADDING-ENTRIES.md, served by server.js
+    ed.innerHTML = '<p class="muted">Loading the guide…</p>';
+    fetch('/guide.md', { cache: 'no-store' }).then(r => r.ok ? r.text() : Promise.reject(new Error(r.statusText)))
+      .then(t => { if (view[0] === 'guide') ed.innerHTML = `<div class="guide">${md(t)}</div>`; })
+      .catch(e => { ed.innerHTML = `<p>Couldn't load ADDING-ENTRIES.md (${esc(e.message)}).</p>`; });
   } else if (kind === 'site') {
     ed.innerHTML = `<h2>Site &amp; UI</h2>
       <h3>Identity</h3>
-      <div class="grid">${field('Name', 'site.name')}${field('Headline', 'site.role')}${field('Location', 'site.location')}${field('Accent colour', 'site.accent', 'color')}${field('Secondary colour', 'site.accent2', 'color')}</div>
+      <div class="grid">${field('Name', 'site.name')}${field('Headline (the line above your name)', 'site.role')}${field('Location', 'site.location')}${field('Accent colour', 'site.accent', 'color')}${field('Secondary colour', 'site.accent2', 'color')}</div>
       ${field('Name banner (ASCII art shown instead of your name; leave empty for plain text)', 'site.banner', 'area')}
       ${field('Summary', 'site.summary', 'area')}
-      ${field('Contact links (one per line: Label | https://… or mailto:…)', 'site.links', 'area')}
+      ${field('Contact links (one per line: Label | https://… or mailto:…); Contact me uses the email, GitHub and LinkedIn ones', 'site.links', 'area')}
       <p class="muted">Open “Preview site” and refresh it to see changes.</p>`;
   } else {
     ed.innerHTML = `<div class="ed-head"><h2>Resume &amp; jobs</h2><button class="btn" data-act="addsec">+ Add section</button></div>
-      <p class="muted">Each section is a tab on the profile sheet and a terminal command (its first word). New entries go on top.</p>`
+      <p class="muted">Each section shows in About me, in whoami, and as a file in Developer mode (its first word, like experience.txt). New entries go on top.</p>`
       + data.resume.map((s, si) => `<div class="section">
         <div class="ed-head">${field('Section', `resume.${si}.name`)}<button class="btn" data-act="additem" data-si="${si}">+ Add entry</button><button class="btn danger" data-act="rmsec" data-si="${si}">Delete section</button></div>
         ${s.items.map((it, ii) => { const b = `resume.${si}.items.${ii}.`; return `<div class="item">
@@ -80,6 +85,38 @@ function render() {
           <div class="row"><button class="btn" data-act="upitem" data-si="${si}" data-ii="${ii}"${ii ? '' : ' disabled'}>↑ Move up</button><button class="btn danger" data-act="rmitem" data-si="${si}" data-ii="${ii}">Remove entry</button></div></div>`; }).join('')}
       </div>`).join('');
   }
+}
+
+// Just enough Markdown for the guide: headings, paragraphs, lists, code blocks, inline code, bold and links.
+function md(src) {
+  const inline = s => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/(^|\s)(https?:\/\/[^\s<]+[^\s<.,)])/g, '$1<a href="$2" target="_blank" rel="noopener">$2</a>');
+  const html = [];
+  let list = null, code = null;
+  const flushSub = () => { // bullets written under a numbered step nest inside that step
+    if (!list?.sub.length) return;
+    list.items.push(list.items.pop().replace(/<\/li>$/, `<ul>${list.sub.join('')}</ul></li>`));
+    list.sub = [];
+  };
+  const endList = () => { if (!list) return; flushSub(); html.push(`<${list.tag}>${list.items.join('')}</${list.tag}>`); list = null; };
+  for (const line of src.split(/\r?\n/)) {
+    if (code) { if (line.startsWith('```')) { html.push(`<pre>${esc(code.join('\n'))}</pre>`); code = null; } else code.push(line); continue; }
+    if (line.startsWith('```')) { endList(); code = []; continue; }
+    const li = line.match(/^\s*([-*]|\d+\.)\s+(.*)/);
+    if (li) {
+      const tag = /\d/.test(li[1]) ? 'ol' : 'ul', item = `<li>${inline(li[2])}</li>`;
+      if (list?.tag === 'ol' && tag === 'ul') list.sub.push(item);
+      else { if (list && list.tag !== tag) endList(); list ??= { tag, items: [], sub: [] }; flushSub(); list.items.push(item); }
+      continue;
+    }
+    if (!line.trim()) { endList(); continue; }
+    endList();
+    const h = line.match(/^(#{1,4})\s+(.*)/);
+    html.push(h ? `<h${h[1].length + 1}>${inline(h[2])}</h${h[1].length + 1}>` : `<p>${inline(line)}</p>`);
+  }
+  endList();
+  return html.join('');
 }
 
 // ---- Editing

@@ -55,6 +55,11 @@ async function handle(req, res) {
   }
   if (url.pathname === '/live') { res.writeHead(302, { Location: liveUrl() }); return res.end(); }
   if (url.pathname === '/admin') { res.writeHead(302, { Location: '/admin/' }); return res.end(); }
+  if (url.pathname === '/guide.md') return fs.readFile(path.join(__dirname, 'ADDING-ENTRIES.md'), (err, buf) => { // the dashboard's How-to
+    if (err) return send(404, 'Not found');
+    res.writeHead(200, { 'Content-Type': 'text/markdown; charset=utf-8', 'Cache-Control': 'no-store' });
+    res.end(buf);
+  });
   const [root, rel] = url.pathname.startsWith('/admin/') ? [ADMIN, url.pathname.slice(7)] : [SITE, url.pathname.slice(1)];
   const file = path.join(root, decodeURIComponent(rel) || 'index.html');
   if (!file.startsWith(root + path.sep)) return send(403, 'Forbidden');
