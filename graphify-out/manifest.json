@@ -1,0 +1,42 @@
+{
+  "admin/admin.js": {
+    "mtime": 1792484720.5950322,
+    "ast_hash": "c6e6b32add0c2ceda4d880d605e31ad6",
+    "semantic_hash": "c6e6b32add0c2ceda4d880d605e31ad6"
+  },
+  "docs/app.js": {
+    "mtime": 1791445930.5195,
+    "ast_hash": "2d726f0631904a0afa705a7048ea11a9",
+    "semantic_hash": "2d726f0631904a0afa705a7048ea11a9"
+  },
+  "docs/data.json": {
+    "mtime": 1792484972.4993944,
+    "ast_hash": "83a8826d24692f8206e695e0711a7a57",
+    "semantic_hash": "83a8826d24692f8206e695e0711a7a57"
+  },
+  "server.js": {
+    "mtime": 1792469470.975337,
+    "ast_hash": "23fb3bb12d09e24e5f1bf55db9da00f0",
+    "semantic_hash": "23fb3bb12d09e24e5f1bf55db9da00f0"
+  },
+  "README.md": {
+    "mtime": 1792469470.8948555,
+    "ast_hash": "e533bccaad854e104d6eb6f037e4d2e8",
+    "semantic_hash": "e533bccaad854e104d6eb6f037e4d2e8"
+  },
+  "admin/index.html": {
+    "mtime": 1792484720.5502634,
+    "ast_hash": "f0d1edabbececb68bb672197c31c6930",
+    "semantic_hash": "f0d1edabbececb68bb672197c31c6930"
+  },
+  "docs/index.html": {
+    "mtime": 1791379390.035468,
+    "ast_hash": "a6f465dd946effabbc87fb068bb0685e",
+    "semantic_hash": "a6f465dd946effabbc87fb068bb0685e"
+  },
+  "ADDING-ENTRIES.md": {
+    "mtime": 1792469427.4316404,
+    "ast_hash": "a093db85ca636d79410b8a3bc49946f1",
+    "semantic_hash": "a093db85ca636d79410b8a3bc49946f1"
+  }
+}
