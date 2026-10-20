@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PixelPad privacy policy</title>
+<meta name="description" content="What PixelPad and PixelPad Desk do with your data: nothing leaves your own network, and no data is collected.">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a href="./"><img src="img/logo.png" alt="PixelPad" width="222" height="48"></a>
+  <nav aria-label="Page sections"><a href="./">Home</a><a href="./#download">Download</a></nav>
+</div></header>
+
+<main class="wrap" style="padding-top:32px">
+  <div class="card"><header><h2>Privacy policy</h2></header><div class="body">
+    <p class="note">Applies to PixelPad (the Android app) and PixelPad Desk (the Windows program), version 1.5.0 and later. Last updated 2026-10-20.</p>
+
+    <h3>The short version</h3>
+    <p>PixelPad collects no data. It has no account, no ads, no analytics and no crash reporting. What you do in the app goes to your own PC over your own network, and nowhere else.</p>
+
+    <h3>What the app sends, and to whom</h3>
+    <ul>
+      <li><b>To your PC only:</b> pen position, pressure and tilt, touches, the buttons and keys you press, and the controller's sticks and buttons. They go to the PixelPad Desk you paired with, over Wi-Fi, Bluetooth tethering or a USB cable. Every packet is signed and encrypted with a key that only your device and your PC have.</li>
+      <li><b>From your PC to the app:</b> the game's vibration, and the list and names of the controller layouts (profiles) kept on the PC, including the name of a Steam game that just started.</li>
+      <li><b>One internet request:</b> the app and PixelPad Desk ask this website for a small file, <code>latest.json</code>, to see whether a newer version exists. That request is an ordinary web request, so the web host (GitHub Pages) sees the usual details of one (your IP address and the time) in its own logs. PixelPad does not receive or keep them, and sends nothing about you or your device. The Steam version of PixelPad Desk does not make this request at all.</li>
+    </ul>
+
+    <h3>Permissions the Android app asks for</h3>
+    <ul>
+      <li><b>Camera:</b> only to scan the pairing QR code on your PC. The camera image is not saved or sent anywhere.</li>
+      <li><b>Network access:</b> to talk to your PC, and for the update check above.</li>
+      <li><b>Vibration:</b> so the app can vibrate when a game rumbles the controller.</li>
+      <li><b>Install apps:</b> only used when you tap to update the app; Android asks you to confirm every install.</li>
+    </ul>
+
+    <h3>What is stored, and where</h3>
+    <ul>
+      <li><b>On the device:</b> your settings, your layouts and the PCs you paired (a name, an address and the pairing key), in the app's private storage. App backups are switched off, and uninstalling the app removes all of it.</li>
+      <li><b>On the PC:</b> PixelPad Desk keeps its settings, your controller profiles and the pairing key in <code>%APPDATA%\PixelPadDesk</code>. The pairing key is protected with Windows' own data protection. Deleting that folder removes it.</li>
+      <li><b>Steam games:</b> to link a layout to a game, PixelPad Desk reads the list of games installed in your Steam library, on your PC. It stays on your PC.</li>
+    </ul>
+
+    <h3>Sharing</h3>
+    <p>Nothing is sold, shared or passed to anyone. There is nobody to share it with: PixelPad has no servers.</p>
+
+    <h3>Children</h3>
+    <p>PixelPad is a utility for anyone and collects nothing about its users, children included.</p>
+
+    <h3>Changes and contact</h3>
+    <p>If this policy changes, the new version replaces this page and the date above changes with it.</p>
+  </div></div>
+</main>
+
+<footer class="bottom"><div class="wrap">
+  <span>PixelPad is made by Malcolm Liew Jia En and is free software under the MIT licence.</span>
+  <span><a href="./">Home</a> · <a href="THIRD-PARTY-NOTICES.txt">Licences</a></span>
+</div></footer>
+</body>
+</html>

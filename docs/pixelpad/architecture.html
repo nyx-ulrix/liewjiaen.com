@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PixelPad architecture: platforms and code flows</title>
+<meta name="description" content="How PixelPad is built: the platforms it needs and where each is used, the system, the packet format, and the main code flows, as diagrams.">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a href="./"><img src="img/logo.png" alt="PixelPad" width="222" height="48"></a>
+  <nav aria-label="Page sections"><a href="./">Home</a><a href="./#download">Download</a><a href="privacy.html">Privacy</a></nav>
+</div></header>
+
+<main class="wrap" style="padding-top:32px">
+  <h1>How PixelPad works inside</h1>
+  <p class="lead">The platforms it needs and where each one is used, the pieces of the system, the packets on the wire, and the logic of the main code paths. The diagrams are drawn in your browser from text, by Mermaid, served from this site.</p>
+  <nav class="toc" aria-label="On this page"><a href="#platforms">Platforms</a><a href="#system">The system</a><a href="#wire">The wire</a><a href="#flows">Code flows</a></nav>
+
+  <section id="platforms">
+    <h2 class="sec">1. Platforms: what is needed and where</h2>
+    <p>PixelPad is two programs that talk to each other, plus the places they are built, shipped and updated from.</p>
+    <table class="grid-table">
+      <tr><th>Platform</th><th>What runs or lives there</th><th>Needs</th><th>Where it is used</th></tr>
+      <tr><td><b>Android phone or tablet</b></td><td>PixelPad (Kotlin)</td><td>Android 7.0 or newer; a camera to scan the QR code; a pen is optional</td><td>The device in your hands: pen, trackpad, controller and presenter screens. Installed from an APK.</td></tr>
+      <tr><td><b>Windows PC</b></td><td>PixelPad Desk (Python and tkinter, built into an exe)</td><td>Windows 10 (1809 or newer) or 11, 64-bit</td><td>The PC being controlled: it turns packets into a pen, touch, keys and a controller. Sits in the tray.</td></tr>
+      <tr><td><b>ViGEmBus driver</b></td><td>The virtual DualShock 4</td><td>Windows; the installer from its author (BSD-3-Clause). Only for controller mode.</td><td>On the same PC. The Steam version ships the installer and a button that starts it.</td></tr>
+      <tr><td><b>The link</b></td><td>16-byte packets, sealed</td><td>Wi-Fi (UDP), Bluetooth tethering (the same UDP) or a USB cable (TCP through adb reverse, which needs adb from the Android platform tools)</td><td>Between the two programs.</td></tr>
+      <tr><td><b>Steam</b></td><td>PixelPad Desk as a Steam app</td><td>A Steamworks account, SteamCMD to upload, Valve's review</td><td>Distribution of the Windows program (in preparation). Steam also tells Desk which game is running, for controller profiles.</td></tr>
+      <tr><td><b>GitHub</b></td><td>The source repository (private)</td><td>Git</td><td>Source control, documentation and a generated map of the code.</td></tr>
+      <tr><td><b>GitHub Pages</b></td><td>This site</td><td>The output of the site build script</td><td>Downloads, the privacy policy, and <code>latest.json</code>, which both programs read to find updates.</td></tr>
+      <tr><td><b>Developer PC</b></td><td>Build tools</td><td>Windows 10 or 11, JDK 17, Android SDK (platform 35), Gradle, Python 3.11, PyInstaller, PowerShell</td><td>Where everything is built, tested and signed. The Android release key is kept outside the repository.</td></tr>
+      <tr><td><b>Android emulator</b> (optional)</td><td>A virtual phone</td><td>Android SDK emulator</td><td>App-only screenshots and UI checks.</td></tr>
+      <tr><td><b>Google Play, Apple App Store</b></td><td>Not used yet</td><td>Developer accounts; Apple also needs a Mac</td><td>Possible later. Nothing in the code depends on them.</td></tr>
+    </table>
+    <figure class="diagram"><pre class="mermaid">flowchart TB
+  subgraph DEV["Developer PC - Windows 10 or 11"]
+    GR["Gradle + JDK 17 + Android SDK&lt;br/&gt;builds and signs the APK"]
+    PY["Python 3.11 + PyInstaller&lt;br/&gt;builds the exe and the Steam folder"]
+    SCMD["SteamCMD&lt;br/&gt;uploads the Steam build"]
+    KEY["Release signing key&lt;br/&gt;kept outside the repository"]
+    EMU["Android emulator&lt;br/&gt;screenshots and UI checks"]
+  end
+  subgraph GH["GitHub"]
+    REPO["Repository nyx-ulrix/pixelpad&lt;br/&gt;source, docs, code map (private)"]
+    PAGES["GitHub Pages: liewjiaen.com/pixelpad&lt;br/&gt;page, downloads, privacy, latest.json"]
+  end
+  subgraph STEAM["Steam"]
+    SW["Steamworks partner site&lt;br/&gt;store page, builds, review"]
+    SC["Steam client and store&lt;br/&gt;delivers PixelPad Desk"]
+  end
+  subgraph USERPC["User's Windows PC"]
+    DESK["PixelPad Desk"]
+    VIG["ViGEmBus driver&lt;br/&gt;virtual DualShock 4"]
+    SGAMES["Steam games&lt;br/&gt;library files and running-game registry"]
+  end
+  subgraph PHONE["User's Android phone or tablet"]
+    APP["PixelPad app"]
+  end
+  subgraph LATER["Not yet"]
+    PLAY["Google Play"]
+    APPLE["Apple App Store"]
+  end
+  GR --&gt;|"APK, signed with"| KEY
+  GR --&gt;|"PixelPad-x.apk"| PAGES
+  PY --&gt;|"PixelPadDesk-x.exe, SHA256SUMS, latest.json"| PAGES
+  PY --&gt;|"Steam content folder"| SCMD --&gt; SW --&gt; SC --&gt; DESK
+  DEV --&gt;|"git push"| REPO
+  PAGES --&gt;|"download"| APP
+  PAGES --&gt;|"download"| DESK
+  APP &lt;--&gt;|"Wi-Fi or Bluetooth tether: UDP&lt;br/&gt;USB: TCP through adb reverse"| DESK
+  DESK --&gt; VIG
+  DESK --&gt;|"reads"| SGAMES
+  APP -.-&gt;|"update check"| PAGES
+  DESK -.-&gt;|"update check, not in the Steam copy"| PAGES
+  EMU -.-&gt; APP
+  APP -.-&gt; PLAY
+  APP -.-&gt; APPLE</pre></figure>
+  </section>
+
+  <section id="system">
+    <h2 class="sec">2. The system</h2>
+    <p>Everything the phone does goes to the PC as small sealed packets. The PC replies with a few of its own: pongs, rumble and profiles.</p>
+    <figure class="diagram"><pre class="mermaid">flowchart LR
+  subgraph PHONE["PixelPad on Android"]
+    UI["Screens&lt;br/&gt;trackpad, pen, controller, present, settings"]
+    CORE["Core and Cfg&lt;br/&gt;settings, saved PCs, keys, layouts"]
+    TX["Sender&lt;br/&gt;queue, sealing, UDP or TCP"]
+    FIND["Netscan and search&lt;br/&gt;finds the PC again after a network change"]
+    HAP["Haptics&lt;br/&gt;game rumble as vibration"]
+    UPA["Updater"]
+  end
+  subgraph LINK["The link"]
+    WIFI["Wi-Fi or Bluetooth tether&lt;br/&gt;UDP, first free port from 7777"]
+    USB["USB cable&lt;br/&gt;TCP 127.0.0.1 through adb reverse"]
+  end
+  subgraph PC["PixelPad Desk on Windows"]
+    SRV["Server&lt;br/&gt;udp_loop, tcp_loop, Pairing, handle"]
+    DEVS["Device slots 1 to 4"]
+    INJ["Windows input&lt;br/&gt;synthetic pen and touch, SendInput, keys"]
+    PAD["Pad&lt;br/&gt;vgamepad then ViGEmBus"]
+    PROF["Profiles&lt;br/&gt;saved layouts and game links"]
+    WATCH["Watcher&lt;br/&gt;notices a linked game starting"]
+    DESKUI["Desk window and tray&lt;br/&gt;QR code, status, checklist, settings"]
+  end
+  UI --&gt; CORE --&gt; TX
+  UI --&gt; HAP
+  TX &lt;--&gt; WIFI &lt;--&gt; SRV
+  TX &lt;--&gt; USB &lt;--&gt; SRV
+  FIND --&gt; TX
+  SRV --&gt; DEVS --&gt; INJ
+  DEVS --&gt; PAD
+  PAD --&gt;|"rumble"| DEVS
+  SRV &lt;--&gt; PROF
+  WATCH --&gt; PROF
+  WATCH --&gt;|"game started"| SRV
+  DESKUI --- SRV
+  UPA -.-&gt;|"latest.json"| WEB["liewjiaen.com/pixelpad"]
+  DESKUI -.-&gt;|"latest.json"| WEB</pre></figure>
+    <h3 class="flow">The Android app</h3>
+    <figure class="diagram"><pre class="mermaid">flowchart TB
+  MA["MainActivity&lt;br/&gt;hosts the view, pins the app, shows toasts"]
+  PV["PixelPadView&lt;br/&gt;draws and handles all four screens&lt;br/&gt;pen filter OneEuro, layouts, edit mode"]
+  SA["SettingsActivity&lt;br/&gt;connection, tablet, pen buttons, gestures,&lt;br/&gt;controller and profiles, app, licences"]
+  SCAN["ScanActivity&lt;br/&gt;camera QR scanner (zxing)"]
+  CORE["Core, Cfg, Keys, Actions, Recog&lt;br/&gt;settings in SharedPreferences,&lt;br/&gt;saved PCs, express keys, gesture recogniser"]
+  SND["Sender&lt;br/&gt;send thread, beat thread (500 ms), reader threads"]
+  SEAL["Seal&lt;br/&gt;HMAC-SHA256 keystream and tag"]
+  PSY["ProfileSync&lt;br/&gt;profile requests in 11-byte chunks"]
+  PUI["ProfilesUi"]
+  HAP["Haptics"]
+  NET["Netscan&lt;br/&gt;broadcast and local network addresses"]
+  UPD["Updater&lt;br/&gt;PackageInstaller"]
+  ICO["Icons&lt;br/&gt;drawn in code"]
+  MA --&gt; PV
+  MA --&gt; SA
+  MA --&gt; SCAN
+  PV --&gt; SND
+  PV --&gt; PSY
+  SA --&gt; CORE
+  SA --&gt; PUI --&gt; PSY
+  SA --&gt; UPD
+  SCAN --&gt; CORE
+  PV --&gt; CORE
+  SND --&gt; SEAL
+  SND --&gt; NET
+  SND --&gt;|"rumble"| HAP
+  SND --&gt;|"profile packets"| PSY
+  CORE --&gt; SND
+  PV --&gt; ICO
+  SA --&gt; ICO</pre></figure>
+    <h3 class="flow">PixelPad Desk and its server</h3>
+    <figure class="diagram"><pre class="mermaid">flowchart TB
+  DESK["pixelpad_desk.py&lt;br/&gt;tkinter window: panes for connect (QR), status, checklist,&lt;br/&gt;device area, games, settings. Single-instance mutex. Updater."]
+  TRAY["pixelpad_tray.py&lt;br/&gt;notification-area icon in plain Win32 (ctypes)"]
+  ICONS["pixel_icons.py&lt;br/&gt;line icons drawn with Pillow"]
+  SRV["pixelpad_server.py&lt;br/&gt;Server, Pairing, Device, Playout,&lt;br/&gt;Pen, Touch, Trackpad, KeyRecorder, Pad,&lt;br/&gt;update check, adb helpers, diagnose"]
+  PROF["pixelpad_profiles.py&lt;br/&gt;Profiles store, Reassembler,&lt;br/&gt;Steam library and VDF reader, Watcher"]
+  W32["Windows APIs&lt;br/&gt;InjectSyntheticPointerInput, SendInput,&lt;br/&gt;keyboard hook, Shell_NotifyIcon, DPAPI"]
+  VG["vgamepad + ViGEmBus"]
+  FILES["%APPDATA%/PixelPadDesk&lt;br/&gt;settings.json, profiles"]
+  STEAMF["Steam on this PC&lt;br/&gt;libraryfolders.vdf, appmanifests, registry"]
+  ADB["adb (Android platform tools)"]
+  DESK --&gt; SRV
+  DESK --&gt; TRAY
+  DESK --&gt; ICONS
+  DESK --&gt; PROF
+  DESK --&gt; FILES
+  SRV --&gt; PROF
+  SRV --&gt; W32
+  SRV --&gt; VG
+  SRV --&gt; ADB
+  PROF --&gt; FILES
+  PROF --&gt; STEAMF</pre></figure>
+  </section>
+
+  <section id="wire">
+    <h2 class="sec">3. The wire: packets and sealed frames</h2>
+    <p>Every message is a 16-byte packet whose first byte is the mode. With a pairing key, each packet travels inside a sealed frame: signed and encrypted, new for every packet.</p>
+    <table class="grid-table">
+      <tr><th>Mode</th><th>Direction</th><th>Meaning</th></tr>
+      <tr><td>0</td><td>app to PC</td><td>Trackpad: action, raw movement, clicks</td></tr>
+      <tr><td>1</td><td>app to PC</td><td>Pen: action, buttons, position, pressure, tilt, and the time since the previous sample</td></tr>
+      <tr><td>2</td><td>app to PC</td><td>Controller: button bits, two sticks, two triggers</td></tr>
+      <tr><td>3</td><td>both</td><td>Ping and pong: round trip time, colour, player slot, the PC's screen size</td></tr>
+      <tr><td>4</td><td>app to PC</td><td>Hello: the size of the drawing area</td></tr>
+      <tr><td>6</td><td>app to PC</td><td>Key: virtual key, modifiers, tap, press or release</td></tr>
+      <tr><td>7</td><td>app to PC</td><td>Config: pen cursor ring, smoothing delay</td></tr>
+      <tr><td>8</td><td>app to PC</td><td>Touch: one finger of a multi-finger gesture</td></tr>
+      <tr><td>9</td><td>both</td><td>Shortcut recording from the PC keyboard</td></tr>
+      <tr><td>10</td><td>both</td><td>Profiles: list, get, save, delete, and the "a linked game started" notice. Text travels in 11-byte chunks.</td></tr>
+      <tr><td>11</td><td>PC to app</td><td>Rumble: heavy and light motor</td></tr>
+    </table>
+    <figure class="diagram"><pre class="mermaid">flowchart LR
+  subgraph A2P["App to PC: 48 bytes"]
+    R1["row 1&lt;br/&gt;0xA5 + 15 body bytes"]
+    R2["row 2&lt;br/&gt;0xA5 + 15 body bytes"]
+    R3["row 3&lt;br/&gt;0xA5 + 2 body bytes + zero padding"]
+    R1 --- R2 --- R3
+  end
+  subgraph BODY["The 32 body bytes"]
+    B1["session id&lt;br/&gt;4"] --- B2["counter&lt;br/&gt;4"] --- B3["packet XOR keystream&lt;br/&gt;16"] --- B4["tag&lt;br/&gt;8"]
+  end
+  subgraph P2A["PC to app: 37 bytes"]
+    C1["0xA6&lt;br/&gt;1"] --- C2["PC run nonce&lt;br/&gt;8"] --- C3["counter&lt;br/&gt;4"] --- C4["packet XOR keystream&lt;br/&gt;16"] --- C5["tag&lt;br/&gt;8"]
+  end
+  A2P --&gt; BODY
+  KS["keystream and tag = HMAC-SHA256 of the pairing key&lt;br/&gt;over a label, the nonce, the session id and the counter"] -.-&gt; BODY
+  KS -.-&gt; P2A</pre></figure>
+    <p>The nonce changes every time PixelPad Desk starts, so a recording of an earlier run is worthless. The counter makes each frame usable once (the PC keeps a 64-frame replay window per session). Replies are bound to the session they answer. A "discovery" ping sealed with nonce 0 is the only thing the PC accepts without knowing the nonce, and it changes nothing.</p>
+  </section>
+
+  <section id="flows">
+    <h2 class="sec">4. Code logic flows</h2>
+    <h3 class="flow">4.1 Pairing and the first connection</h3>
+    <figure class="diagram"><pre class="mermaid">sequenceDiagram
+  participant U as User
+  participant D as PixelPad Desk (PC)
+  participant A as PixelPad (Android)
+  D-&gt;&gt;D: First run: make a 128-bit pairing key, keep it (Windows DPAPI)
+  D-&gt;&gt;U: Show the QR code: pixelpad://address:port?name=...&amp;k=key
+  U-&gt;&gt;A: Scan it (ScanActivity)
+  A-&gt;&gt;A: Save the PC: name, address, port, key
+  A-&gt;&gt;D: Discovery ping, sealed with nonce 0
+  D--&gt;&gt;A: Pong sealed with this run's nonce (player slot, screen size)
+  A-&gt;&gt;A: Learn the nonce, then seal everything with it
+  loop every 500 ms
+    A-&gt;&gt;D: Sealed ping (round trip time, colour)
+    D--&gt;&gt;A: Sealed pong
+  end
+  A-&gt;&gt;D: Sealed input packets
+  D-&gt;&gt;D: Pairing.open: check tag, check replay window, then handle</pre></figure>
+    <h3 class="flow">4.2 The life of a packet: sending (Android)</h3>
+    <figure class="diagram"><pre class="mermaid">flowchart TD
+  EV["A touch, pen sample or button press"] --&gt; MK["Sender.pen, pad, key or touch&lt;br/&gt;builds a 16-byte packet"]
+  MK --&gt; Q["Queue&lt;br/&gt;if more than 64 are waiting, stale moves are dropped"]
+  Q --&gt; TH["Send thread takes one"]
+  TH --&gt; RT{"Failed in the last 500 ms?"}
+  RT -- "yes, and it is not a ping" --&gt; SK["Skip it"]
+  RT -- "no" --&gt; DR{"Settings changed?"}
+  DR -- "yes" --&gt; RC["Close sockets, start again"]
+  DR -- "no" --&gt; PG{"A ping?"}
+  RC --&gt; PG
+  PG -- "yes" --&gt; ST["Stamp it, remember the stamp"]
+  PG -- "no" --&gt; KN
+  ST --&gt; KN{"Paired, but this PC run's nonce unknown?"}
+  KN -- "yes, and it is not a ping" --&gt; SK
+  KN -- "no" --&gt; SL["Seal it (discovery ping if the nonce is unknown)"]
+  SL --&gt; TR{"Transport"}
+  TR -- "Wi-Fi or Bluetooth" --&gt; UDP["UDP datagram to the PC"]
+  TR -- "USB" --&gt; TCP["TCP write to 127.0.0.1"]
+  UDP --&gt; EX["On an error: note why, wait 500 ms, reconnect"]
+  TCP --&gt; EX</pre></figure>
+    <h3 class="flow">4.3 The life of a packet: receiving (PC)</h3>
+    <figure class="diagram"><pre class="mermaid">flowchart TD
+  IN["Datagram (UDP) or bytes (TCP)"] --&gt; SZ{"Size or first byte"}
+  SZ -- "16 bytes, plain" --&gt; PL{"A pairing key is set and old apps are not allowed?"}
+  PL -- "yes" --&gt; RF["Refuse, log it now and then"]
+  PL -- "no (old app)" --&gt; H["handle"]
+  SZ -- "48 bytes, sealed" --&gt; OP["Pairing.open"]
+  OP --&gt; TG{"Tag matches the run nonce, or nonce 0?"}
+  TG -- "no" --&gt; BAD["Drop it, remember a bad frame was seen"]
+  TG -- "nonce 0" --&gt; DI{"Is it a ping?"}
+  DI -- "no" --&gt; BAD
+  DI -- "yes" --&gt; DS["discover: answer with a pong. Creates nothing."]
+  TG -- "this run's nonce" --&gt; FR{"Counter is new in the 64-frame window?"}
+  FR -- "no, a replay" --&gt; BAD
+  FR -- "yes" --&gt; H
+  H --&gt; OUT["Replies are sealed for the sender's session id"]</pre></figure>
+    <h3 class="flow">4.4 What the PC does with a packet</h3>
+    <figure class="diagram"><pre class="mermaid">flowchart TD
+  H["handle(packet)"] --&gt; DV{"Device for this address"}
+  DV -- "none, and all 4 slots taken" --&gt; X["Ignore (a 5th device)"]
+  DV -- "known or new slot" --&gt; M{"Mode"}
+  M -- "3 ping" --&gt; PO["Record round trip time and colour, send a pong, renew rumble"]
+  M -- "4 hello" --&gt; PH["Remember the drawing area size"]
+  M -- "10 profile" --&gt; PR["profile_msg: list, get, save, delete"]
+  M -- "9 record" --&gt; RE["Shortcut recorder, only if switched on in the Desk"]
+  M -- "7 config" --&gt; CF["Cursor ring, smoothing delay, colour"]
+  M -- "8 touch" --&gt; TO["Touch: synthetic touch contacts"]
+  M -- "6 key" --&gt; KY["Held-keys set, then key_event"]
+  M -- "0 trackpad" --&gt; TP["trackpad: cursor, clicks, scroll"]
+  M -- "1 pen" --&gt; SM{"Smoothing delay above 0?"}
+  SM -- "yes" --&gt; PL["Playout: replay with the tablet's own spacing"]
+  SM -- "no" --&gt; PE["Pen: inject now"]
+  M -- "2 controller" --&gt; PD{"Same as the last controller packet?"}
+  PD -- "yes" --&gt; X2["Nothing to do"]
+  PD -- "no" --&gt; PA["Pad.send: update the virtual DualShock 4"]</pre></figure>
+    <h3 class="flow">4.5 The pen, from stylus to Windows</h3>
+    <figure class="diagram"><pre class="mermaid">flowchart LR
+  S["Stylus event&lt;br/&gt;position, pressure, tilt, hover, eraser"] --&gt; F["Palm rejection and what may draw"]
+  F --&gt; O["One Euro filter&lt;br/&gt;smooths the stroke"]
+  O --&gt; MAP["Map into the drawing area"]
+  MAP --&gt; PK["Pen packet with dt:&lt;br/&gt;ms since the previous sample"]
+  PK --&gt; NET["Sealed, over the link"]
+  NET --&gt; HD["Server.handle"]
+  HD --&gt; PO["Playout heap&lt;br/&gt;replays with the tablet's spacing after a small fixed delay"]
+  PO --&gt; PEN["Pen.send&lt;br/&gt;absolute or relative, screen area, hover or contact"]
+  PEN --&gt; WIN["InjectSyntheticPointerInput&lt;br/&gt;a real Windows pen: pressure, tilt, eraser"]</pre></figure>
+    <h3 class="flow">4.6 The link: staying connected and finding the PC again</h3>
+    <figure class="diagram"><pre class="mermaid">stateDiagram-v2
+  [*] --&gt; Quiet
+  Quiet --&gt; Connecting: a screen of the app is visible
+  Connecting --&gt; Connected: a pong arrives within 2 seconds
+  Connected --&gt; Lost: no pong for 2 seconds
+  Lost --&gt; Connecting: the next ping goes out as a discovery ping
+  Lost --&gt; Searching: Wi-Fi, paired, down for 3 seconds, and the last search was 8 or more seconds ago
+  Searching --&gt; Found: a sealed answer arrives from some address
+  Searching --&gt; Lost: nothing answered
+  Found --&gt; Connected: the new address is saved and the link restarts
+  Connected --&gt; Quiet: the app leaves the screen</pre></figure>
+    <figure class="diagram"><pre class="mermaid">flowchart TD
+  S["search()"] --&gt; B1["Burst 1: sealed discovery pings to the broadcast addresses&lt;br/&gt;on the saved port and 7777 to 7796"]
+  B1 --&gt; L1{"Listen 1.2 s: a sealed pong for a ping we sent?"}
+  L1 -- "yes" --&gt; FD
+  L1 -- "no" --&gt; B2["Burst 2: the same again"]
+  B2 --&gt; L2{"Listen 0.8 s"}
+  L2 -- "yes" --&gt; FD
+  L2 -- "no" --&gt; B3["Burst 3: every address of the local networks (up to a /22 each)&lt;br/&gt;on the saved port and 7777"]
+  B3 --&gt; L3{"Listen 2 s"}
+  L3 -- "no" --&gt; END["Give up, try again after 8 s"]
+  L3 -- "yes" --&gt; FD["Found: the address and port are where the answer came from"]
+  FD --&gt; MV["Core.movePc: update the saved PC, reconnect, show a toast"]</pre></figure>
+    <p>Only a PC holding the pairing key can build an answer the app accepts, so a stranger on the network cannot point the app somewhere else.</p>
+    <h3 class="flow">4.7 Controller and game rumble</h3>
+    <figure class="diagram"><pre class="mermaid">sequenceDiagram
+  participant A as PixelPad (Android)
+  participant S as Server (PC)
+  participant P as Pad (vgamepad)
+  participant V as ViGEmBus
+  participant G as Game
+  A-&gt;&gt;S: Controller packet (buttons, sticks, triggers)
+  S-&gt;&gt;P: Pad.send, only if it changed
+  P-&gt;&gt;V: Update the virtual DualShock 4
+  V-&gt;&gt;G: The game reads a DualShock 4
+  G-&gt;&gt;V: Rumble (heavy, light)
+  V-&gt;&gt;P: Notification
+  P-&gt;&gt;S: rumble(large, small), only changes are passed on
+  S--&gt;&gt;A: Rumble packet (mode 11), sealed
+  A-&gt;&gt;A: Haptics: vibrate, strength set in Settings
+  Note over A,S: The phone's buzz lasts 1.5 s, so every pong renews it while the game still rumbles. A lost link stops it.</pre></figure>
+    <h3 class="flow">4.8 Profiles and the game that just started</h3>
+    <figure class="diagram"><pre class="mermaid">sequenceDiagram
+  participant W as Watcher (PC, every 2 s)
+  participant S as Server
+  participant A as PixelPad (Android)
+  participant U as You
+  W-&gt;&gt;W: Steam's RunningAppID and the program list: is a linked game running?
+  W-&gt;&gt;S: A new linked start: profile number, game name, start number
+  S--&gt;&gt;A: Switch notice (mode 10, 0x85) as chunks, to every device
+  A-&gt;&gt;A: ProfileSync reassembles it, and the start number stops a repeat from being followed twice
+  A-&gt;&gt;S: Get that profile
+  S--&gt;&gt;A: The profile: name, template, layout
+  A-&gt;&gt;U: The controller screen with that layout
+  U-&gt;&gt;A: May pick another layout at any time. Nothing is locked.
+  Note over S,A: A device that connects while a linked game is already running is told 1.5 s later.</pre></figure>
+    <h3 class="flow">4.9 Updates</h3>
+    <figure class="diagram"><pre class="mermaid">flowchart TD
+  ST["App or PixelPad Desk starts, or you press Check for updates"] --&gt; SC{"The Steam copy of the Desk?"}
+  SC -- "yes" --&gt; NO["No check. Steam updates it."]
+  SC -- "no" --&gt; GET["GET liewjiaen.com/pixelpad/latest.json"]
+  GET --&gt; OK{"Reachable, and the version looks like a number?"}
+  OK -- "no" --&gt; MSG["Say it couldn't reach the update server"]
+  OK -- "yes" --&gt; NW{"Newer than this version?"}
+  NW -- "no" --&gt; LAT["You have the latest version"]
+  NW -- "yes" --&gt; WH{"Which program"}
+  WH -- "Android app" --&gt; AP["Only an apk under the site's address counts.&lt;br/&gt;Download into a PackageInstaller session."]
+  AP --&gt; AI["Android checks the signature (same key as the installed app)&lt;br/&gt;and asks you to confirm"]
+  WH -- "PixelPad Desk" --&gt; DE["Only an exe and SHA256SUMS under the site's address count.&lt;br/&gt;Download over https, at most 100 MB."]
+  DE --&gt; CK{"SHA-256 matches the line in SHA256SUMS?"}
+  CK -- "no" --&gt; RJ["Delete it, report failure"]
+  CK -- "yes" --&gt; SW["Swap it in (the old exe becomes .old), restart with --updated"]</pre></figure>
+    <h3 class="flow">4.10 PixelPad Desk: start and run</h3>
+    <figure class="diagram"><pre class="mermaid">flowchart TD
+  A["Start"] --&gt; MX{"Another copy running? (named mutex)"}
+  MX -- "yes" --&gt; SH["Tell it to show itself, exit"]
+  MX -- "no" --&gt; CFG["Load settings, the pairing key (made on the first run)"]
+  CFG --&gt; PT["Server.open: first free port from 7777, UDP and TCP"]
+  PT --&gt; UI["Build the window and the QR code"]
+  UI --&gt; TR["Tray icon"]
+  TR --&gt; RUN["Server.run: UDP loop, TCP loop, game Watcher"]
+  RUN --&gt; TK["Timers"]
+  TK --&gt; T1["every 500 ms: status, device area, overlay"]
+  TK --&gt; T2["every 3 to 15 s: checklist and adb reverse"]
+  TK --&gt; T3["on start: update check (not in the Steam copy)"]</pre></figure>
+    <h3 class="flow">4.11 Build and release</h3>
+    <figure class="diagram"><pre class="mermaid">flowchart TD
+  ED["Change the code"] --&gt; TS["Tests: server/test_server.py and the Kotlin harnesses"]
+  TS --&gt; VR["Bump the version in build.gradle.kts and in pixelpad_desk.py&lt;br/&gt;(the test checks they match)"]
+  VR --&gt; APK["gradlew assembleRelease&lt;br/&gt;signed with the release key"]
+  VR --&gt; EXE["PyInstaller: one-file exe"]
+  VR --&gt; STF["steam/build_content.ps1: Steam folder,&lt;br/&gt;driver installer checked, start-up test"]
+  APK --&gt; SITE["site/build_site.py&lt;br/&gt;checks the certificate is not the debug key"]
+  EXE --&gt; SITE
+  SITE --&gt; DIST["site/dist: page, privacy, architecture,&lt;br/&gt;APK, exe, SHA256SUMS, latest.json"]
+  DIST --&gt; PUB["Copy into the portfolio repo docs/pixelpad, push"]
+  PUB --&gt; LIVE["GitHub Pages serves it: downloads and update checks work"]
+  STF --&gt; UP["steamcmd +run_app_build"]
+  UP --&gt; REV["Steamworks: review, set the build live, release"]
+  ED --&gt; GP["git push to the private repository"]</pre></figure>
+  </section>
+</main>
+
+<footer class="bottom"><div class="wrap">
+  <span>PixelPad is made by Malcolm Liew Jia En and is free software under the MIT licence.</span>
+  <span><a href="./">Home</a> · <a href="privacy.html">Privacy</a> · <a href="THIRD-PARTY-NOTICES.txt">Licences</a></span>
+  <span class="note">Diagrams are drawn by Mermaid (MIT licence, <a href="vendor/LICENSE-mermaid.txt">notice</a>), served from this site: nothing is loaded from anywhere else.</span>
+</div></footer>
+
+<script src="vendor/mermaid.min.js"></script>
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({
+      startOnLoad: false, securityLevel: "strict", theme: "base",
+      themeVariables: { fontFamily: '"Courier New", Courier, monospace', fontSize: "14px", primaryColor: "#bfe3fa", primaryBorderColor: "#2f6fe0", primaryTextColor: "#12306b",
+        lineColor: "#2f6fe0", secondaryColor: "#ffb8e6", tertiaryColor: "#f7fbff", noteBkgColor: "#ffd9a8", noteTextColor: "#12306b", actorBkg: "#bfe3fa", actorBorder: "#2f6fe0" },
+      flowchart: { htmlLabels: true, useMaxWidth: false, curve: "basis" }, sequence: { useMaxWidth: false }
+    });
+    mermaid.run({ querySelector: "pre.mermaid" });
+  }
+</script>
+</body>
+</html>
