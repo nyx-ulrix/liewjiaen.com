@@ -11,6 +11,20 @@
   },
   "projects": [
     {
+      "title": "Extraction Theory",
+      "tagline": "Coffee brew log and dial-in tracker that lives in your own Google Sheet",
+      "year": "2026",
+      "type": "Passion project",
+      "tools": "React, TypeScript, Vite, Google Sheets API, Google Identity Services, SVG, Firebase Hosting, PWA, Claude API, Gemini API",
+      "links": "GitHub | https://github.com/nyx-ulrix/extraction-theory\nLive | https://extractiontheory.liewjiaen.com",
+      "text": "Built a brew log for espresso, filter, ice brew, cold brew, moka pot and Aeropress that stores every bean, brew and pour phase in the user's own Google Sheet through the Sheets API, with no backend of its own.\nDesigned per-method brew forms with pour phases (temperature, agitation, valve), Aeropress press phases, chilling stages, a ratio solver and a pour splitter that treats the first part of a pattern as the bloom.\nImplemented grinder calibration in microns per click with a zero point for each grinder, grouped by brand, so grind settings carry across grinders.\nBuilt a draggable SVG flavour radar with one see-through layer per tasting note, axes configurable per coffee, and cup-wide axes (body, bitterness) that move every note together.\nRendered every chart in a risograph print style: colours pushed to vivid inks, dense halftone dot screens, and multiply or screen overprinting for the light and dark themes.\nIntegrated Claude, OpenAI and Gemini with the user's own key to pick note colours from a 64-colour palette and to fill a new bean from up to two photos of the bag using structured JSON output.\nShipped it as an installable PWA on Firebase Hosting, with Google sign-in that survives reloads and a theme-matched startup screen.",
+      "writeup": "I dial in coffee for espresso, filter and iced brews, and my notes were scattered across a phone notes app: grind clicks, water temperatures, pour readings off the scale. I wanted one place that remembers what worked for each bag, without paying for a service or handing my data to one.\n\nExtraction Theory gives every coffee its own page with the roaster's details, a flavour radar and its full brew history. A brew records the grinder, dose, ratio, temperature and every pour, and each coffee can be marked as dialed in for a method. Home shows the bags I still have as cards, and new beans can be filled in from a photo of the label.\n\nThere is no server. Everything lives in a Google Sheet in my own Drive, read and written straight from the browser, so the data stays mine and I can open it in Sheets any time. The part I enjoyed most was the radar: every tasting note is its own layer you drag into shape, body and bitterness move all notes together because they describe the whole cup, and the charts are printed like risograph ink in halftone dots.\n\nIt now holds all my coffee notes, and it's installed on my phone as an app.",
+      "images": [
+        "extraction-theory.webp",
+        "extraction-theory-2.webp"
+      ]
+    },
+    {
       "title": "SproControl",
       "tagline": "Open controller and home-screen widgets for the iKape K2 espresso machine",
       "year": "2026",
