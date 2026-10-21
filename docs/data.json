@@ -21,7 +21,10 @@
       "writeup": "I dial in coffee for espresso, filter and iced brews, and my notes were scattered across a phone notes app: grind clicks, water temperatures, pour readings off the scale. I wanted one place that remembers what worked for each bag, without paying for a service or handing my data to one.\n\nExtraction Theory gives every coffee its own page with the roaster's details, a flavour radar and its full brew history. A brew records the grinder, dose, ratio, temperature and every pour, and each coffee can be marked as dialed in for a method. Home shows the bags I still have as cards, and new beans can be filled in from a photo of the label.\n\nThere is no server. Everything lives in a Google Sheet in my own Drive, read and written straight from the browser, so the data stays mine and I can open it in Sheets any time. The part I enjoyed most was the radar: every tasting note is its own layer you drag into shape, body and bitterness move all notes together because they describe the whole cup, and the charts are printed like risograph ink in halftone dots.\n\nIt now holds all my coffee notes, and it's installed on my phone as an app.",
       "images": [
         "extraction-theory.webp",
-        "extraction-theory-2.webp"
+        "extraction-theory-grow.webp",
+        "extraction-theory-2.webp",
+        "extraction-theory-3.webp",
+        "extraction-theory-4.webp"
       ]
     },
     {
