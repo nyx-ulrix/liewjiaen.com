@@ -20,6 +20,8 @@
       "text": "Built a mobile-first Singapore bus arrival app in React Native and Expo, exported to the web as an installable PWA.\nPolled live arrival times every second straight from the phone, so no server stores or proxies any data.\nDesigned stacked pill progress bars showing the next three buses per service in separate colours, filling as each bus approaches.\nImplemented search across every Singapore bus stop by code or name, with saved stops and bus filters kept in on-device storage.\nEngineered a bento tile grid that sizes each tile to its buses and scales with screen width, plus a drag-to-reorder layout editor.\nDeployed on a self-hosted Deployer instance behind a Cloudflare Tunnel, with push-to-deploy from GitHub.",
       "writeup": "Bus When? answers one question quickly: when is my bus coming? You save the stops you use, and the app shows live arrivals for them the moment you open it.\n\nEach bus service gets a pill-shaped bar holding its next three buses in different colours. The bars fill up as the buses get closer, the arriving one flashes, and the tiles sit on a bento grid that can be dragged into whatever order suits your commute.\n\nIt's written in React Native with Expo and exported to the web as a PWA, so it installs to a phone's home screen without an app store. One rule I set was that nothing gets stored on my server: the phone polls a public arrivals API every second itself, and saved stops live only in the phone's own storage.\n\nIt's live at buswhen.liewjiaen.com, hosted on my own Deployer instance behind a Cloudflare Tunnel, and every push to GitHub redeploys it.",
       "images": [
+        "bus-when.webp",
+        "bus-when-3.webp",
         "bus-when-2.webp"
       ]
     },
