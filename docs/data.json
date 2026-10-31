@@ -172,15 +172,20 @@
     },
     {
       "title": "Thermal Printer Label Editor",
-      "tagline": "Label designer that prints raw TSPL to a Gprinter GP-3120TL",
+      "tagline": "Label designer and riso-style to-do board that print to a GP-3120TL",
       "year": "2026",
-      "type": "Desktop App",
-      "tools": "TypeScript, Electron, React, TSPL",
+      "type": "Passion project",
+      "tools": "TypeScript, Electron, React, Vite, TSPL, Node.js, Python, Google OAuth, Google Calendar API, PWA, MariaDB, Deployer, Cloudflare",
       "links": "GitHub | https://github.com/nyx-ulrix/Thermal-printer-editor",
-      "text": "Built a Windows desktop application for designing and printing thermal labels on a Gprinter GP-3120TL, sending raw TSPL commands so the printer driver does not alter the layout.\nDeveloped a live WYSIWYG label canvas with rulers, snap guides, drag, resize, align, rotate, layering, grouping, and undo/redo for text, lines, images, and input fields.\nImplemented image processing for thermal output (threshold, dithering, invert), custom TTF/OTF font import, and media settings for size, gap, density, speed, and print direction.\nBuilt a template system with saved designs, fillable input fields, auto-incrementing serial number fields, saved fills, and print-width warnings; supported light and dark themes and packaged a Windows installer.",
+      "text": "Built a label designer for a Gprinter GP-3120TL that sends raw TSPL, so no printer driver changes the layout, as a Windows desktop app and as a website.\nDeveloped a WYSIWYG label canvas with rulers, snap guides, align, rotate, layers, groups and undo/redo for text, lines, images and fill-in fields.\nImplemented thermal image processing (threshold, dithering, invert), custom TTF/OTF fonts, and templates with saved fills and auto-incrementing serial numbers.\nDesigned a riso-print kanban board whose cards print as labels, with urgency colours, due dates and times, collapsible columns and sorting by due date then urgency.\nEngineered an event-sourced Node.js server with live updates over server-sent events, storing events in MariaDB through Deployer's data API.\nWrote a Python print agent on the home server that pulls jobs over HTTPS and writes them to the USB printer, so the printer never faces the internet.\nSecured both sites with Google sign-in (OAuth with PKCE), server-side sessions, CSRF headers and a hashed content security policy, with printing limited to my account.\nSynced due dates one way into a Google Calendar the app makes for itself, removing events when a task is done and never touching anything else in the account.\nAdded a print view that redraws every card as the exact 203 dpi label it would print, plus an installable PWA with a phone layout and a tap-to-edit sheet.\nDeployed on a self-hosted Deployer instance behind a Cloudflare Tunnel, with push-to-deploy from GitHub.",
       "images": [
-        "thermal-printer-label-editor.webp"
-      ]
+        "thermal-kanban-board.webp",
+        "thermal-printer-label-editor.webp",
+        "thermal-kanban-print-view.webp",
+        "thermal-kanban-phone.webp",
+        "thermal-kanban-phone-edit.webp"
+      ],
+      "writeup": "I bought a Gprinter GP-3120TL to print labels, and the software that came with it kept moving things around. So I wrote my own label editor that talks to the printer in its own language, TSPL, and sends the label exactly as drawn. It started as a Windows desktop app and now also runs as a website at printer-editor.liewjiaen.com.\n\nOnce printing was reliable, I wanted my to-do list on paper too. The kanban board at kanban.liewjiaen.com is styled like a risograph print: each task is a card coloured by its column, with an urgency band across the top and its due date. One tap prints the card as a label, and a print view turns the whole board black and white and shows every card exactly as the printer would draw it.\n\nThe printer sits on a home server, not on the internet. A small Python agent there asks the server for jobs and writes them to the USB port, and the board shows a dot that goes red when the printer is unplugged. Tasks with a due date also land in a Google Calendar the app creates for itself, and leave it once they're done.\n\nBoth sites sit behind Google sign-in, and only my account can print. The server is plain Node.js with no framework, keeps every change as an event in MariaDB, and redeploys from GitHub on every push to my own Deployer instance."
     },
     {
       "title": "Singapore MRT Routing Optimiser",
