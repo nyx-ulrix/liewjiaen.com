@@ -125,6 +125,10 @@
       "links": "GitHub | https://github.com/nyx-ulrix/Fitz\nLive | https://fitz-bay.vercel.app",
       "text": "Built a fully functioning, mobile-first AI wardrobe and styling web application that recommends daily outfits using the user's own clothes, deployed on Vercel.\nIntegrated Google Gemini computer vision to generate a personalised colour profile (undertone, contrast, recommended colours) from a user photo and to classify garments by category, colour, and pattern, with privacy-aware prompting that avoids sensitive inferences.\nIntegrated Agnes AI for wardrobe-grounded outfit generation (\"Dress me\") and AI virtual try-on image generation (\"Try it on\"), letting users preview pairings before committing and reducing impulsive purchases and textile waste.\nIncorporated live weather data from the Open-Meteo API into outfit recommendation prompts for context-aware suggestions.\nDesigned a swipe-based mix-and-match outfit grid with item locking and local caching for session continuity.\nBuilt a Hono API on Node.js deployed as Vercel serverless functions, with Supabase for authentication, storage, and wardrobe data, and Supabase Edge Functions for \"Style Jams\" collaborative event outfit planning.\nEngineered graceful degradation with an AI service health check and status banner so core features remain usable when generative AI services are unavailable.",
       "images": [
+        "fitz-2.webp",
+        "fitz-3.webp",
+        "fitz-4.webp",
+        "fitz-5.webp",
         "fitz.webp"
       ]
     },
