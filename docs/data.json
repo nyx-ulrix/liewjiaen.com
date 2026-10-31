@@ -157,14 +157,17 @@
     },
     {
       "title": "AutoResume",
-      "tagline": "ReadyTalent Job Scraper and AI Resume Tailoring",
+      "tagline": "Job scraper and AI resume tailoring, on desktop and self-hosted on the web",
       "year": "2026",
-      "type": "Desktop App",
-      "tools": "TypeScript, React, Electron, Google Gemini, Node.js",
+      "type": "Desktop & Web App",
+      "tools": "TypeScript, React, Electron, Node.js, Google Gemini, Docker, MariaDB",
       "links": "GitHub | https://github.com/nyx-ulrix/readytalent-scraper",
-      "text": "Built a Windows desktop application that scrapes job listings (title, company, salary, required skills, description) from SIT's ReadyTalent career portal and stores them locally.\nAutomated sign-in through SIT's ADFS single sign-on in a hidden Electron window, calling the portal's own job API with incremental scraping of only new jobs; encrypted saved credentials with Windows DPAPI.\nIntegrated Google Gemini to extract ATS keywords from job descriptions and generate tailored, ATS-optimised A4 resumes and cover letters, with three printable templates and PDF export.\nServed the app over a local network server so tablets (Android/iPad) can use it as a Progressive Web App on the same Wi-Fi; wrote a scraper self-test against a mock portal API.",
+      "text": "Built an app that collects job listings from SIT's ReadyTalent career portal, LinkedIn and Indeed into one list, with status filters (saved, applied, waiting, rejected) and pay in other currencies converted to SGD at the day's rate.\nAutomated sign-in through SIT's ADFS single sign-on in a hidden Electron window and called the portal's own job API for incremental scraping; it reads the ReadyTalent dashboard to mark jobs applied or rejected automatically and runs a nightly scrape at a time the user chooses.\nIntegrated AI models (Gemini, Claude, OpenAI) to extract ATS keywords from each posting, show how well the resume matches, and generate tailored A4 resumes and cover letters with PDF export.\nAdded Targets: name a job title and the AI writes an example posting and search terms, then finds and ranks similar jobs.\nSelf-hosted the web version in a Docker container on my own server, behind Google sign-in limited to one account, with data in MariaDB and a live status bar for running scrapes.",
       "images": [
-        "autoresume.webp"
+        "autoresume.webp",
+        "autoresume-2.webp",
+        "autoresume-3.webp",
+        "autoresume-4.webp"
       ]
     },
     {
