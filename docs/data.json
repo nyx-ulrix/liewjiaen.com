@@ -20,9 +20,10 @@
       "text": "Built a two-station medication dispenser in a team of five: an ESP32-S3 pillbox that releases one date-specific dose per day on a hand gesture, and an MSP430 healthcare station that reads the pillbox's NFC tag, linked over Wi-Fi with CRC-16 checked frames.\nDesigned and 3D-printed the three-part PETG enclosure (base, eight-slot carousel tray and twist-lock cover, Ø130 × 78 mm), moving from servos to a 28BYJ-48 stepper so the tray could reach every compartment.\nRedesigned the carousel tray with a flat floor after the first sloped version let pills slide out during refills.\nImplemented the ESP32-S3 hardware timers: a 1 ms system tick for scheduling and the dose clock, and a 20 ms interrupt that samples the IR hand sensor.\nDesigned the pillbox's local web dashboard for weekly setup, storage alerts and dose history, served gzipped (about 72 KB down to 20 KB) with automatic clock sync on every connection.\nCalibrated the NTC thermistor against a reference thermometer, fitting B and R25 to bring the 20–40 °C storage range within ±1 °C.",
       "writeup": "PharmaVault was our team's joint project for SIT's Sensors and Control and Embedded Systems Design modules. Elderly patients living alone often miss doses or take one twice, and medicine kept somewhere too warm or humid spoils, so we built a pillbox that only releases today's dose and keeps an eye on its own storage conditions.\n\nThe pillbox holds a week of doses in a rotating carousel. Once a dose is due, holding a hand over the outlet for 1.5 seconds turns the tray to that day's compartment. A caregiver sets the schedule, refills and storage limits from a dashboard the pillbox serves over its own Wi-Fi, and at a separate healthcare station, tapping the pillbox's NFC tag shows the week's progress and refill notes.\n\nI designed and 3D-printed the enclosure, which took several versions: a servo couldn't turn far enough to reach all eight compartments, so we moved to a stepper, and the first sloped tray let pills slide out whenever the cover came off. On the firmware side I moved the ESP32-S3's timing onto hardware timers, built the dashboard, and calibrated the thermistor so the storage range reads within a degree.\n\nWith more time, I'd add a sensor at the outlet to confirm a pill actually dropped, and a home switch so the tray can find its position by itself after a power cut.",
       "images": [
-        "pharmavault.webp",
-        "pharmavault-2.webp",
-        "pharmavault-3.webp"
+        "pharmavault-4.mp4",
+        "pharmavault-5.webp",
+        "pharmavault-6.webp",
+        "pharmavault-7.webp"
       ]
     },
     {
